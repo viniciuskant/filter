@@ -4,3 +4,4 @@ hex_to_wav
 # tmp files of gcc
 **/build
 **/*.o
+**/tmp
