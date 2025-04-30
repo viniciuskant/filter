@@ -41,6 +41,7 @@ int read_wav_header(const char *filename, WavInfo *info) {
     fread(&info->sample_rate, 4, 1, file);
     fseek(file, 6, SEEK_CUR); // Skip byte rate and block align
     fread(&info->bits_per_sample, 2, 1, file);
+    info->bytes_per_sample = info->bits_per_sample / 8;
 
     // Read data subchunk
     while (1) {
