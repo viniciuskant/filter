@@ -5,12 +5,15 @@
 #include <fftw3.h>
 #include <math.h>
 #include "utils/plot.h"
+#include <string.h>
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        printf("Usage: %s file.wav\n", argv[0]);
+        printf("Usage: %s file.wav --verbose\n", argv[0]);
         return 1;
     }
+
+    int verbose = argc > 2 && (strcmp(argv[2], "--verbose") == 0 || strcmp(argv[2], "-v") == 0);
 
     WavInfo info;
     if (read_wav_header(argv[1], &info) != 0) {
@@ -22,6 +25,7 @@ int main(int argc, char *argv[]) {
     printf("Sample Rate: %u Hz\n", info.sample_rate);
     printf("Bytes per Sample: %u\n", info.bytes_per_sample);
     printf("Data Size: %u bytes\n", info.data_size);
+    printf("Number of Samples: %u\n", info.data_size / info.bytes_per_sample);
 
     // Allocate memory for FFT input and output
     int num_samples = info.data_size / info.bytes_per_sample;
@@ -44,26 +48,31 @@ int main(int argc, char *argv[]) {
     int magnitude;
     int* frequency_bins = (int*)malloc(num_samples / 2 * sizeof(int));
     int count = 0;
-    printf("Frequency Domain Representation:\n");
-    for (int i = 0; i < num_samples / 2; i++) { // Only show positive frequencies
+    if (verbose)
+        printf("Frequency Domain Representation:\n");
+    for (int i = 0; i < num_samples; i++) {
         magnitude = sqrt(out[i][0] * out[i][0] + out[i][1] * out[i][1]);
         frequency = i * info.sample_rate / num_samples;
         if (frequency != prev_frequency) {
-            printf("%d Hz: %d\n", frequency, magnitude);
-            frequency_bins[count] = magnitude / 1000;
+            if (verbose) 
+                printf("%d Hz: %d\n", frequency, magnitude);
+            frequency_bins[count] = magnitude / 100;
             count++;
         }
         prev_frequency = frequency;
     }
+    printf("Total Frequencies: %d\n", count);
 
     // Clean up
     fftw_destroy_plan(plan);
     fftw_free(in);
     fftw_free(out);
 
-    int deslocamento = 1000;
+    int deslocamento = count / 20; // Pego um deslocamento de 5% do tamanho do arquivo
+    int x_min = 0;
+    int x_max = (count - deslocamento) > x_min ? (count - deslocamento) : count;
 
-    plot_data(frequency_bins + deslocamento, count, 0, count - deslocamento, "Magnitude");
+    plot_data(frequency_bins + deslocamento, x_max , x_min, x_max, "magnitude.png");
 
     return 0;
 }

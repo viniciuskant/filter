@@ -4,9 +4,11 @@
 #include <cairo/cairo.h>
 #include <stddef.h>
 
-#define IMAGE_WIDTH 1920
-#define IMAGE_HEIGHT 1080
-#define MAX_SAMPLES_PER_LINE 7100
+#define SCALE_FACTOR 2
+
+#define IMAGE_WIDTH 1920 / SCALE_FACTOR
+#define IMAGE_HEIGHT 1080 / SCALE_FACTOR
+#define MAX_SAMPLES_PER_LINE 4000
 #define GRAPH_PADDING 50
 #define LINE_SPACING 0 
 
