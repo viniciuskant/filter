@@ -5,3 +5,8 @@ hex_to_wav
 **/build
 **/*.o
 **/tmp
+
+# plots
+**/*.png
+**/*.jpg
+**/*.jpeg
